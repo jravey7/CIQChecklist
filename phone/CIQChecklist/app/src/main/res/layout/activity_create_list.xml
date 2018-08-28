@@ -30,26 +30,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/editListItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="13dp"
-        android:ems="10"
-        android:hint="Item"
-        android:inputType="textPersonName"
-        app:layout_constraintStart_toStartOf="@+id/textViewItem"
-        app:layout_constraintTop_toBottomOf="@+id/textViewItem" />
-
-    <TextView
-        android:id="@+id/textViewItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Item"
-        app:layout_constraintStart_toStartOf="@+id/editListName"
-        app:layout_constraintTop_toBottomOf="@+id/editListName" />
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addListItemButton"
         android:layout_width="wrap_content"
@@ -58,12 +38,12 @@
         android:layout_marginLeft="24dp"
         android:layout_marginStart="24dp"
         android:clickable="true"
+        android:focusable="true"
         android:onClick="onClickAddListItem"
         app:backgroundTint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_add_white_24dp"
-        android:focusable="true" />
+        app:srcCompat="@drawable/ic_add_white_24dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/doneCreateListButton"
@@ -73,11 +53,42 @@
         android:layout_marginEnd="24dp"
         android:layout_marginRight="24dp"
         android:clickable="true"
+        android:focusable="true"
         android:onClick="onClickDoneCreateList"
         app:backgroundTint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_check_white_24dp"
-        android:focusable="true" />
+        app:srcCompat="@drawable/ic_check_white_24dp" />
+
+
+    <LinearLayout
+        android:layout_width="378dp"
+        android:layout_height="451dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/addListItemButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editListName">
+
+        <ListView
+            android:id="@+id/checklistItems"
+            android:layout_width="match_parent"
+            android:layout_height="454dp"
+            tools:layout_editor_absoluteX="69dp"
+            tools:layout_editor_absoluteY="139dp">
+
+            <TextView
+                android:id="@+id/label"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" />
+
+        </ListView>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
