@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">CIQChecklist</string>
+    <string name="hint_list_name">My list</string>
+    <string name="list_name_label">Name</string>
+</resources>
