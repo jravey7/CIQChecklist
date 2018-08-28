@@ -13,7 +13,7 @@ public class CreateListActivity extends AppCompatActivity {
     private Integer addCount = 0;
     private Integer doneCount = 0;
 
-    String[] defaultListItems = {"Onions", "Peppers", "Chicken", "Salad dressing", "Eggs"};
+    String[] defaultListItems = {"Onions", "Peppers", "Chicken", "Salad dressing", "Eggs", "Onions", "Peppers", "Chicken", "Salad dressing", "Eggs", "Onions", "Peppers", "Chicken", "Salad dressing", "Eggs"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +23,7 @@ public class CreateListActivity extends AppCompatActivity {
         // not used atm
         Intent intent = getIntent();
 
-        ArrayAdapter adapter = new ArrayAdapter<>(this, R.layout.activity_create_list, defaultListItems);
+        ArrayAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, defaultListItems);
 
         ListView listView = findViewById(R.id.checklistItems);
         listView.setAdapter(adapter);

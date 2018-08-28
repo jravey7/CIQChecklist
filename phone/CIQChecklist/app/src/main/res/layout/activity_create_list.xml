@@ -62,33 +62,28 @@
 
 
     <LinearLayout
-        android:layout_width="378dp"
-        android:layout_height="451dp"
-        android:layout_marginBottom="8dp"
+        android:id="@+id/linearLayoutCreateList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="24dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/addListItemButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editListName">
 
         <ListView
             android:id="@+id/checklistItems"
             android:layout_width="match_parent"
-            android:layout_height="454dp"
+            android:layout_height="match_parent"
             tools:layout_editor_absoluteX="69dp"
-            tools:layout_editor_absoluteY="139dp">
-
-            <TextView
-                android:id="@+id/label"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent" />
-
-        </ListView>
+            tools:layout_editor_absoluteY="139dp" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
