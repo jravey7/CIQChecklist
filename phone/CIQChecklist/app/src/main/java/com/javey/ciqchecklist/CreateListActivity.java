@@ -1,7 +1,6 @@
 package com.javey.ciqchecklist;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,8 +10,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -28,16 +27,9 @@ public class CreateListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_list);
 
-        // not used atm
-        Intent intent = getIntent();
-
         Collections.addAll(listItems, defaultListItems);
-//        for(int i = 0; i < defaultListItems.length; i++)
-//        {
-//            listItems.add(defaultListItems[i]);
-//        }
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listItems);
 
         ListView listView = findViewById(R.id.checklistItems);
         listView.setAdapter(adapter);
@@ -72,9 +64,79 @@ public class CreateListActivity extends AppCompatActivity {
         textInputDialog.show();
     }
 
+
     public void onClickDoneCreateList(View view)
     {
+        // make sure the name is populated and unique, and the list is populated
+        EditText editListName = (EditText) findViewById(R.id.editListName);
+        String listName = editListName.getText().toString();
+        if( !listName.isEmpty() && isUniqueListName(listName) && !listItems.isEmpty())
+        {
+            ListWriter.writeListToFile(this, listName, listItems);
 
+            AlertDialog.Builder uploadToWatchAlert = new AlertDialog.Builder(this);
+            uploadToWatchAlert.setMessage("Upload to watch?");
+            uploadToWatchAlert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // upload to watch
+                    // todo
+
+                    // end this activity and go back to landing page
+                    finish();
+                }
+            });
+            uploadToWatchAlert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // do nothing
+                }
+            });
+
+            uploadToWatchAlert.show();
+        }
+        else
+        {
+            if( listName.isEmpty())
+            {
+                AlertDialog.Builder invalidListAlert = new AlertDialog.Builder(this);
+                invalidListAlert.setMessage("Invalid list name (empty).");
+                invalidListAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {}
+                });
+                invalidListAlert.show();
+            }
+            else if(!isUniqueListName(listName))
+            {
+                AlertDialog.Builder invalidListAlert = new AlertDialog.Builder(this);
+                invalidListAlert.setMessage("Invalid list name (already exists).");
+                invalidListAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {}
+                });
+                invalidListAlert.show();
+            }
+            else if(listItems.isEmpty())
+            {
+                AlertDialog.Builder invalidListAlert = new AlertDialog.Builder(this);
+                invalidListAlert.setMessage("List is empty.");
+                invalidListAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {}
+                });
+                invalidListAlert.show();
+            }
+        }
+    }
+
+    private boolean isUniqueListName(String name)
+    {
+        File internalStorageDirectory = this.getFilesDir();
+        File[] allFiles = internalStorageDirectory.listFiles();
+        for(int i = 0;  i < allFiles.length; i++)
+        {
+            if(allFiles[i].getName().equals(name + ".txt"))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     // implement OnItemClick() in the adapter listener class for editing a list item when it's short clicked
