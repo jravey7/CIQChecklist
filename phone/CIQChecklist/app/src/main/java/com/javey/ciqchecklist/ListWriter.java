@@ -1,5 +1,6 @@
 package com.javey.ciqchecklist;
 
+import android.app.Activity;
 import android.content.Context;
 
 import java.io.File;
@@ -14,6 +15,7 @@ public class ListWriter {
     public static void writeListToFile(Context context, String listName, ArrayList<String> list)
     {
         try {
+
             FileOutputStream outFile = context.openFileOutput(listName + ".txt", Context.MODE_PRIVATE);
             String newLine = "\n";
 
@@ -25,7 +27,7 @@ public class ListWriter {
             // list item n
 
             // write number of list items
-            outFile.write(list.size());
+            outFile.write(Integer.toString(list.size()).getBytes());
 
             // write each list item
             for(int i = 0; i < list.size(); i++)

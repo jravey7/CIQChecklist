@@ -18,12 +18,13 @@ public class ListReader {
             Scanner scanner = new Scanner(inFile);
 
             // first line specifies the number of list items
-            int nItems = Integer.getInteger(scanner.next());
+            int nItems = scanner.nextInt();
+            scanner.nextLine();
 
             // read each list item into the list
             for(int i = 0; i < nItems; i++)
             {
-                list.add(scanner.next());
+                list.add(scanner.nextLine());
             }
 
             inFile.close();

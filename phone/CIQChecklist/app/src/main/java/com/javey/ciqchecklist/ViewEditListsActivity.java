@@ -2,6 +2,7 @@ package com.javey.ciqchecklist;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +26,20 @@ public class ViewEditListsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_edit_lists);
 
+        displayLists();
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        displayLists();
+    }
+
+    private void displayLists()
+    {
+        listOfListnames.clear();
+
         File[] internalStorageFiles;
         internalStorageFiles = getFilesDir().listFiles();
 
@@ -42,15 +57,13 @@ public class ViewEditListsActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.listOfListnames);
         listView.setAdapter(adapter);
 
-        // todo
-        //listView.setOnItemClickListener(listItemClickedListener);
+        listView.setOnItemClickListener(listItemClickedListener);
         listView.setOnItemLongClickListener(listItemLongClickedListener);
     }
 
-    // implement OnItemClick() in the adapter listener class for editing a list item when it's long clicked
+    // implement OnItemClick() in the adapter listener class for deleting a list when it's long clicked
     private AdapterView.OnItemLongClickListener listItemLongClickedListener = new AdapterView.OnItemLongClickListener() {
 
-        boolean confirmedDelete = false;
 
         @Override
         public boolean onItemLongClick(AdapterView parent, View v, int pos, long id)
@@ -65,7 +78,6 @@ public class ViewEditListsActivity extends AppCompatActivity {
             confirmDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // user confirmed to delete this list item
-                    confirmedDelete = true;
                     deleteFile(listOfListnames.get(constPos) + ".txt");
                     listOfListnames.remove(constPos);
                     adapter.notifyDataSetChanged();
@@ -73,13 +85,26 @@ public class ViewEditListsActivity extends AppCompatActivity {
             })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // user cancelled the delete
-                            confirmedDelete = false;
+                            // user cancelled the delete, do nothing
                         }
                     });
             confirmDialog.show();
 
             return true;
+        }
+    };
+
+    // implement OnItemClick() in the adapter listener class for editing a list when it's clicked
+    private AdapterView.OnItemClickListener listItemClickedListener = new AdapterView.OnItemClickListener() {
+
+
+        @Override
+        public void onItemClick(AdapterView parent, View v, int pos, long id)
+        {
+            Intent intent = new Intent(ViewEditListsActivity.this, CreateListActivity.class);
+            intent.putExtra("editList", true);
+            intent.putExtra("listName", listOfListnames.get(pos));
+            startActivity(intent);
         }
     };
 }

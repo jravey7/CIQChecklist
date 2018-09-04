@@ -1,6 +1,8 @@
 package com.javey.ciqchecklist;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,12 +25,41 @@ public class CreateListActivity extends AppCompatActivity {
     ArrayList<String> listItems = new ArrayList<>();
     ArrayAdapter adapter;
 
+    // false if the list is being created (new)
+    // true if the list is just being edited
+    boolean editList = false;
+    String editListName = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_list);
 
-        Collections.addAll(listItems, defaultListItems);
+        Intent intent = getIntent();
+        editList = intent.getBooleanExtra("editList", false);
+
+        if( editList )
+        {
+            // populate list with existing values
+            editListName = intent.getStringExtra("listName");
+
+            if( editListName.isEmpty() )
+            {
+                throw new IllegalArgumentException("Edit list: List name cannot be empty.");
+            }
+            listItems = ListReader.readListFromFile(this, editListName);
+
+            EditText listNameEditText = findViewById(R.id.editListName);
+            listNameEditText.setText(editListName);
+
+            // change title to Edit List (instead of Create List)
+            setTitle("Edit List");
+        }
+        else
+        {
+            // populate list with default values
+            Collections.addAll(listItems, defaultListItems);
+        }
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listItems);
 
@@ -68,16 +100,19 @@ public class CreateListActivity extends AppCompatActivity {
     public void onClickDoneCreateList(View view)
     {
         // make sure the name is populated and unique, and the list is populated
-        EditText editListName = (EditText) findViewById(R.id.editListName);
-        String listName = editListName.getText().toString();
-        if( !listName.isEmpty() && isUniqueListName(listName) && !listItems.isEmpty())
+        EditText editTextListName = (EditText) findViewById(R.id.editListName);
+        final String newListName = editTextListName.getText().toString();
+        if( !newListName.isEmpty() && !listItems.isEmpty()
+            && (isUniqueListName(newListName) || (editList && editListName.equals(newListName))))
+        // can only overwrite lists if we are currently editing a list and the list's name is either unique or the same as it used to be
         {
-            ListWriter.writeListToFile(this, listName, listItems);
-
             AlertDialog.Builder uploadToWatchAlert = new AlertDialog.Builder(this);
             uploadToWatchAlert.setMessage("Upload to watch?");
             uploadToWatchAlert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
+                    // save list
+                    ListWriter.writeListToFile(CreateListActivity.this, newListName, listItems);
+
                     // upload to watch
                     // todo
 
@@ -85,9 +120,16 @@ public class CreateListActivity extends AppCompatActivity {
                     finish();
                 }
             });
-            uploadToWatchAlert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            uploadToWatchAlert.setNegativeButton("Later", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    // do nothing
+                    // save list but do not upload to watch
+                    ListWriter.writeListToFile(CreateListActivity.this, newListName, listItems);
+                    finish();
+                }
+            });
+            uploadToWatchAlert.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // cancelled, do nothing
                 }
             });
 
@@ -95,19 +137,10 @@ public class CreateListActivity extends AppCompatActivity {
         }
         else
         {
-            if( listName.isEmpty())
+            if( newListName.isEmpty())
             {
                 AlertDialog.Builder invalidListAlert = new AlertDialog.Builder(this);
                 invalidListAlert.setMessage("Invalid list name (empty).");
-                invalidListAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {}
-                });
-                invalidListAlert.show();
-            }
-            else if(!isUniqueListName(listName))
-            {
-                AlertDialog.Builder invalidListAlert = new AlertDialog.Builder(this);
-                invalidListAlert.setMessage("Invalid list name (already exists).");
                 invalidListAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {}
                 });
@@ -117,6 +150,15 @@ public class CreateListActivity extends AppCompatActivity {
             {
                 AlertDialog.Builder invalidListAlert = new AlertDialog.Builder(this);
                 invalidListAlert.setMessage("List is empty.");
+                invalidListAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {}
+                });
+                invalidListAlert.show();
+            }
+            else if(!isUniqueListName(newListName))
+            {
+                AlertDialog.Builder invalidListAlert = new AlertDialog.Builder(this);
+                invalidListAlert.setMessage("Invalid list name (already exists).");
                 invalidListAlert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {}
                 });
