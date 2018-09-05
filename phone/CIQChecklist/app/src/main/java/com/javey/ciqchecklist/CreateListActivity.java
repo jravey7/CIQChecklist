@@ -6,7 +6,10 @@ import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -74,15 +77,14 @@ public class CreateListActivity extends AppCompatActivity {
     public void onClickAddListItem(View view)
     {
         // create a dialog to ask the user for the list item's label
-        AlertDialog.Builder textInputDialog = new AlertDialog.Builder(this);
-        textInputDialog.setTitle("Add list item");
+        AlertDialog.Builder textInputDialogBuilder = new AlertDialog.Builder(this);
+        textInputDialogBuilder.setTitle("Add list item");
 
         // add an editable view to the dialog to accept user input
         final EditText textInput = new EditText(this );
         textInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        textInputDialog.setView(textInput);
-
-        textInputDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        textInputDialogBuilder.setView(textInput);
+        textInputDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        // add user input to the list of items
                        listItems.add(textInput.getText().toString());
@@ -95,7 +97,30 @@ public class CreateListActivity extends AppCompatActivity {
                     }
                 });
 
+        final AlertDialog textInputDialog = textInputDialogBuilder.create();
         textInputDialog.show();
+
+        textInputDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+        textInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (TextUtils.isEmpty(s)) {
+                    textInputDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                } else {
+                    textInputDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                }
+
+            }
+        });
     }
 
 
