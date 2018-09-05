@@ -18,6 +18,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import com.javey.ciqchecklist.ConnectIQInteraction;
+
 public class CreateListActivity extends AppCompatActivity {
 
     String[] defaultListItems = {"List Item #1"};
@@ -114,7 +116,13 @@ public class CreateListActivity extends AppCompatActivity {
                     ListWriter.writeListToFile(CreateListActivity.this, newListName, listItems);
 
                     // upload to watch
-                    // todo
+                    ConnectIQInteraction ciqInteract = new ConnectIQInteraction();
+                    try {
+                        ciqInteract.writeListToWatch(CreateListActivity.this);
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
 
                     // end this activity and go back to landing page
                     finish();
