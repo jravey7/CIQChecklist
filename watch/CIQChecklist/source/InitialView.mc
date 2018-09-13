@@ -1,6 +1,6 @@
 using Toybox.WatchUi as Ui;
 
-class CIQChecklistView extends Ui.View {
+class InitialView extends Ui.View {
 
     function initialize() {
         View.initialize();

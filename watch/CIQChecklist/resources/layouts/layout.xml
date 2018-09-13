@@ -1,4 +1,5 @@
 <layout id="MainLayout">
-    <label x="center" y="50" text="@Strings.prompt" color="Gfx.COLOR_WHITE" justification="Gfx.TEXT_JUSTIFY_CENTER" />
-    <bitmap id="id_monkey" x="center" y="100" filename="../drawables/monkey.png" />
+    <label x="center" y="60" text="@Strings.prompt1" color="Gfx.COLOR_WHITE" justification="Gfx.TEXT_JUSTIFY_CENTER" font="Gfx.FONT_SMALL"/>
+    <label x="center" y="100" text="@Strings.prompt2" color="Gfx.COLOR_WHITE" justification="Gfx.TEXT_JUSTIFY_CENTER" font="Gfx.FONT_SMALL"/>
+    <label x="center" y="140" text="@Strings.prompt3" color="Gfx.COLOR_WHITE" justification="Gfx.TEXT_JUSTIFY_CENTER" font="Gfx.FONT_SMALL"/>
 </layout>

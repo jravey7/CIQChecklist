@@ -21,7 +21,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import com.javey.ciqchecklist.ConnectIQInteraction;
 
 public class CreateListActivity extends AppCompatActivity {
 
@@ -34,6 +33,8 @@ public class CreateListActivity extends AppCompatActivity {
     // true if the list is just being edited
     boolean editList = false;
     String editListName = "";
+
+    ConnectIQInteraction ciqInteract;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,14 @@ public class CreateListActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(listItemClickedListener);
         listView.setOnItemLongClickListener(listItemLongClickedListener);
+
+        // initialize connect iq sdk
+        try {
+            ciqInteract = new ConnectIQInteraction(getApplicationContext());
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public void onClickAddListItem(View view)
@@ -133,18 +142,19 @@ public class CreateListActivity extends AppCompatActivity {
             && (isUniqueListName(newListName) || (editList && editListName.equals(newListName))))
         // can only overwrite lists if we are currently editing a list and the list's name is either unique or the same as it used to be
         {
+            final Checklist checklist = new Checklist(newListName, listItems);
+
             AlertDialog.Builder uploadToWatchAlert = new AlertDialog.Builder(this);
             uploadToWatchAlert.setMessage("Upload to watch?");
             uploadToWatchAlert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // save list
-                    ListWriter.writeListToFile(CreateListActivity.this, newListName, listItems);
+                    ListWriter.writeListToFile(CreateListActivity.this, checklist);
 
                     // upload to watch
-                    ConnectIQInteraction ciqInteract = new ConnectIQInteraction();
                     try {
-                        ciqInteract.writeListToWatch(CreateListActivity.this);
-                    } catch (Exception e)
+                        ciqInteract.writeListToWatch(checklist);
+                    } catch( Exception e)
                     {
                         e.printStackTrace();
                     }
@@ -156,7 +166,7 @@ public class CreateListActivity extends AppCompatActivity {
             uploadToWatchAlert.setNegativeButton("Later", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     // save list but do not upload to watch
-                    ListWriter.writeListToFile(CreateListActivity.this, newListName, listItems);
+                    ListWriter.writeListToFile(CreateListActivity.this, checklist);
                     finish();
                 }
             });

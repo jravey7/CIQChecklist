@@ -1,19 +1,20 @@
 package com.javey.ciqchecklist;
 
-import android.app.Activity;
 import android.content.Context;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.javey.ciqchecklist.Checklist;
+
 public class ListWriter {
 
-    public static void writeListToFile(Context context, String listName, ArrayList<String> list)
+    public static void writeListToFile(Context context, Checklist checklist)
     {
+        String listName = checklist.getListName();
+        ArrayList<String> list = checklist.getListItems();
+
         try {
 
             FileOutputStream outFile = context.openFileOutput(listName + ".txt", Context.MODE_PRIVATE);

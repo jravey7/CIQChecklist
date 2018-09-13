@@ -1,11 +1,11 @@
 using Toybox.Communications as Comms;
-
+using Toybox.WatchUi as Ui;
 
 module PhoneMessageHandler
 {
 	// stores the last uploaded checklist from phone (overwritten each upload)
 	var lastUploadedChecklist;
-	var checklistIsNew;
+	var checklistIsNew = false;
 	
 	function getLastChecklist()
 	{

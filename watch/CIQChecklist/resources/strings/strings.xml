@@ -1,7 +1,9 @@
 <strings>
     <string id="AppName">CIQChecklist</string>
 
-    <string id="prompt">Long touch</string>
+    <string id="prompt1">Upload a list</string>
+    <string id="prompt2">to this watch</string>
+    <string id="prompt3">in phone app.</string>
 
     <string id="menu_label_1">Item 1</string>
     <string id="menu_label_2">Item 2</string>
