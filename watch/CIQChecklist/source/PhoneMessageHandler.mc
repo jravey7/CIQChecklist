@@ -48,6 +48,15 @@ module PhoneMessageHandler
 		
 		checklistIsNew = true;
 		lastUploadedChecklist = new CIQChecklist(listName, nItems, listItems);
+		
+    	// todo: shouldn't be a menu
+		var checklistMenu = new Ui.Menu();
+		checklistMenu.setTitle(listName);
+		for( var i = 0; i < nItems; i++)
+		{
+			checklistMenu.addItem(listItems[i], i);
+		}
+		Ui.pushView( checkListMenu, new CIQChecklistMenuDelegate(), Ui.SLIDE_UP);
 	}
 
 }

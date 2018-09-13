@@ -10,6 +10,7 @@ import com.garmin.android.connectiq.exception.ServiceUnavailableException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ConnectIQInteraction {
 
@@ -37,28 +38,38 @@ public class ConnectIQInteraction {
                     List<IQDevice> paired = null;
                     try {
                         paired = connectIQ.getKnownDevices();
-                    } catch (InvalidStateException e) {
-                        e.printStackTrace();
-                    } catch (ServiceUnavailableException e) {
-                        e.printStackTrace();
-                    }
 
-                    try {
-                        connectIQ.getApplicationInfo(appID, paired.get(0), new ConnectIQ.IQApplicationInfoListener() {
-                            @Override
-                            public void onApplicationInfoReceived(IQApp iqApp) {
-                                app = iqApp;
-                                System.out.println("App info retrieved (" + app.getApplicationId() + ").");
-                            }
+                        IQDevice watch = paired.get(0);
+                        if( watch.getStatus() == IQDevice.IQDeviceStatus.CONNECTED) {
 
-                            @Override
-                            public void onApplicationNotInstalled(String s) {
-                                System.out.println("App not installed.");
+                            connectIQ.getApplicationInfo(appID, watch, new ConnectIQ.IQApplicationInfoListener() {
+                                @Override
+                                public void onApplicationInfoReceived(IQApp iqApp) {
+                                    app = iqApp;
+                                    System.out.println("App info retrieved (" + app.getApplicationId() + ").");
+                                }
+
+                                @Override
+                                public void onApplicationNotInstalled(String s) {
+                                    System.out.println("App not installed.");
+                                }
+                            });
+                        }
+                        else
+                        {
+                            System.out.print("VívoActive 3 not connected");
+                            if( watch.getFriendlyName().equals("vívoactive 3"))
+                            {
+                                System.out.println(" (but is paired to phone).");
                             }
-                        });
-                    } catch (InvalidStateException e) {
-                        e.printStackTrace();
-                    } catch (ServiceUnavailableException e) {
+                            else
+                            {
+                                System.out.println(" (not paired).");
+                            }
+                        }
+                    } catch (Exception e)
+                    {
+                        System.out.println(e.getMessage());
                         e.printStackTrace();
                     }
                 }
@@ -95,22 +106,27 @@ public class ConnectIQInteraction {
                 e.printStackTrace();
             }
 
-            IQDevice device = paired.get(0);
+            IQDevice watch = paired.get(0);
 
-            // todo: support other device types
-            if(device.getFriendlyName().equals("vívoactive 3"))
+            System.out.println(watch.getStatus());
+
+            // todo: support other device types (currently just vivoactive 3)
+            if(watch.getStatus() == IQDevice.IQDeviceStatus.CONNECTED)
             {
                 List<String> message = new ArrayList<>();
                 message.add(checklist.getListName()); // name
                 message.add(Integer.toString(checklist.getNumListItems())); // num items
                 message.addAll(checklist.getListItems()); // items
 
-                connectIQ.sendMessage(device, app, message, new ConnectIQ.IQSendMessageListener() {
+                connectIQ.sendMessage(watch, app, message, new ConnectIQ.IQSendMessageListener() {
                     @Override
                     public void onMessageStatus(IQDevice iqDevice, IQApp iqApp, ConnectIQ.IQMessageStatus iqMessageStatus) {
                         System.out.println(iqDevice.getFriendlyName() + ":" + iqApp.toString() + ": Status = " + iqMessageStatus.name());
                     }
                 });
+            }
+            else {
+                System.out.println("Watch not connected.");
             }
         }
     }
