@@ -2,13 +2,11 @@
 class Checklist
 {
 	var listName;
-	var nItems;
 	var listItems;
 	
-	function initialize(name, numItems, arrayOfItems)
+	function initialize(name, arrayOfItems)
 	{
 		listName = name;
-		nItems = numItems;
 		listItems = arrayOfItems;
 	}
 	

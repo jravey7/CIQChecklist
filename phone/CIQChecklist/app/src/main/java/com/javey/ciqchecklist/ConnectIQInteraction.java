@@ -19,6 +19,7 @@ public class ConnectIQInteraction {
     private static IQApp app;
 
     private ConnectIQ connectIQ;
+    private static IQDevice watch;
     private volatile boolean sdkReady = false;
     private static boolean initialized = false;
 
@@ -39,10 +40,26 @@ public class ConnectIQInteraction {
                     try {
                         paired = connectIQ.getKnownDevices();
 
-                        IQDevice watch = paired.get(0);
-                        if( watch.getStatus() == IQDevice.IQDeviceStatus.CONNECTED) {
+                        IQDevice firstPaired = paired.get(0);
+                        connectIQ.registerForDeviceEvents(firstPaired, new ConnectIQ.IQDeviceEventListener()
+                        {
+                           @Override
+                           public void onDeviceStatusChanged(IQDevice device, IQDevice.IQDeviceStatus newStatus)
+                           {
+                               System.out.println(device.getFriendlyName() + " status: " + newStatus);
 
-                            connectIQ.getApplicationInfo(appID, watch, new ConnectIQ.IQApplicationInfoListener() {
+                               if(newStatus == IQDevice.IQDeviceStatus.CONNECTED)
+                               {
+                                   watch = new IQDevice(device.getDeviceIdentifier(), device.getFriendlyName());
+                                   watch.setStatus(IQDevice.IQDeviceStatus.CONNECTED);
+                               }
+                           }
+                        });
+
+                        if( firstPaired.getStatus() == IQDevice.IQDeviceStatus.CONNECTED)
+                        {
+
+                            connectIQ.getApplicationInfo(appID, firstPaired, new ConnectIQ.IQApplicationInfoListener() {
                                 @Override
                                 public void onApplicationInfoReceived(IQApp iqApp) {
                                     app = iqApp;
@@ -57,8 +74,8 @@ public class ConnectIQInteraction {
                         }
                         else
                         {
-                            System.out.print("VívoActive 3 not connected");
-                            if( watch.getFriendlyName().equals("vívoactive 3"))
+                            System.out.print("vívoactive 3 not connected");
+                            if( firstPaired.getFriendlyName().equals("vívoactive 3"))
                             {
                                 System.out.println(" (but is paired to phone).");
                             }
@@ -87,28 +104,21 @@ public class ConnectIQInteraction {
                     initialized = false;
                 }
             });
-
-            initialized = true;
         }
+        else
+        {
+            sdkReady = true;
+        }
+
+        initialized = true;
     }
 
     public void writeListToWatch(Checklist checklist) throws InvalidStateException, ServiceUnavailableException
     {
 
-        if(sdkReady) {
+        if(sdkReady && watch != null) {
 
-            List<IQDevice> paired = null;
-            try {
-                paired = connectIQ.getKnownDevices();
-            } catch (InvalidStateException e) {
-                e.printStackTrace();
-            } catch (ServiceUnavailableException e) {
-                e.printStackTrace();
-            }
-
-            IQDevice watch = paired.get(0);
-
-            System.out.println(watch.getStatus());
+            System.out.println(watch.getFriendlyName() + " status(2): " + watch.getStatus());
 
             // todo: support other device types (currently just vivoactive 3)
             if(watch.getStatus() == IQDevice.IQDeviceStatus.CONNECTED)
@@ -118,6 +128,7 @@ public class ConnectIQInteraction {
                 message.add(Integer.toString(checklist.getNumListItems())); // num items
                 message.addAll(checklist.getListItems()); // items
 
+                System.out.println("Attempting to send list to watch now.");
                 connectIQ.sendMessage(watch, app, message, new ConnectIQ.IQSendMessageListener() {
                     @Override
                     public void onMessageStatus(IQDevice iqDevice, IQApp iqApp, ConnectIQ.IQMessageStatus iqMessageStatus) {

@@ -4,7 +4,7 @@ using Toybox.WatchUi as Ui;
 module PhoneMessageHandler
 {
 	// stores the last uploaded checklist from phone (overwritten each upload)
-	var lastUploadedChecklist;
+	var lastUploadedChecklist = new Checklist("", new[1]);
 	var checklistIsNew = false;
 	
 	function getLastChecklist()
@@ -16,6 +16,13 @@ module PhoneMessageHandler
 	function hasNewChecklist()
 	{
 		return checklistIsNew;
+	}
+	
+	// remove this function after testing
+	function setChecklist(name, items)
+	{
+		checklistIsNew = true;
+		lastUploadedChecklist = new Checklist(name, items);
 	}
 
 	function registerForMessages()
@@ -49,14 +56,7 @@ module PhoneMessageHandler
 		checklistIsNew = true;
 		lastUploadedChecklist = new CIQChecklist(listName, nItems, listItems);
 		
-    	// todo: shouldn't be a menu
-		var checklistMenu = new Ui.Menu();
-		checklistMenu.setTitle(listName);
-		for( var i = 0; i < nItems; i++)
-		{
-			checklistMenu.addItem(listItems[i], i);
-		}
-		Ui.pushView( checkListMenu, new CIQChecklistMenuDelegate(), Ui.SLIDE_UP);
+		Ui.requestUpdate();
 	}
 
 }

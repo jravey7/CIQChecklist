@@ -15,6 +15,11 @@ class CIQChecklistDelegate extends Ui.BehaviorDelegate {
     
     // vivoactive3: tap screen (short touch)
     function onSelect() {
+    	var list = new [2];
+    	list[0] = "Connect IQ";
+    	list[1] = "Garmin";
+    	PhoneMessageHandler.setChecklist("Test", list);
+    	Ui.requestUpdate();
     }
 
 }

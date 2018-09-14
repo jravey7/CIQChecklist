@@ -5,12 +5,13 @@ class CIQChecklistApp extends App.AppBase {
 
     function initialize() {
         AppBase.initialize();
+        
+        PhoneMessageHandler.registerForMessages();
     }
 
     // onStart() is called on application start up
     function onStart(state) {
-    	PhoneMessageHandler.registerForMessages();
-    
+    	    
     }
 
     // onStop() is called when your application is exiting
@@ -19,7 +20,7 @@ class CIQChecklistApp extends App.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() {
-        return [ new InitialView() ];
+        return [ new InitialView(), new CIQChecklistDelegate() ];
     }
 
 }
