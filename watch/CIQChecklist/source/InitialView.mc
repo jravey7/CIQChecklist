@@ -1,6 +1,6 @@
-using Toybox.WatchUi as Ui;
+using Toybox.WatchUi;
 
-class InitialView extends Ui.View {
+class InitialView extends WatchUi.View {
 
     function initialize() {
         View.initialize();
@@ -24,19 +24,39 @@ class InitialView extends Ui.View {
         
         // phone message handler requests for onUpdate() to arun when it gets a new checklist
         // if a new checklist has been received then start the list view
-        if(PhoneMessageHandler.hasNewChecklist())
+        if(PhoneMessageHandler.hasNewMessage())
         {
-        	var checklist = PhoneMessageHandler.getLastChecklist();
+        	var phoneMessage = PhoneMessageHandler.getLastMessage();
+        	
+        	// the message passed representing a checklist shall be a list of strings in the format:
+			// list name
+			// number of list items
+			// list item 1
+			// list item 2
+			// ...
+			// list item n
+		
+			// first element is the list name
+			var listName = phoneMessage.data[0].toString();
+			
+			// seconds element is the number of list items
+			var nItems = phoneMessage.data[1].toNumber();
+			
+			// remaining elements are the list items
+			var listItems = new[nItems];
+			for( var i = 0; i < nItems; i++)
+			{
+				listItems[i] = phoneMessage.data[i + 2].toString();
+			}
         	
         	// todo: shouldn't be a menu
-			var checklistMenu = new Ui.Menu();
-			checklistMenu.setTitle(checklist.getListName());
-			var listItems = checklist.getListItems();
+			var checklistMenu = new WatchUi.CheckboxMenu({:title=>listName});
 			for( var i = 0; i < listItems.size(); i++)
 			{
-				checklistMenu.addItem(listItems[i], i);
+				var item = new WatchUi.CheckboxMenuItem(listItems[i], null, i, false, {}); 
+				checklistMenu.addItem(item);
 			}
-			Ui.pushView( checklistMenu, new CIQChecklistMenuDelegate(), Ui.SLIDE_UP);
+			WatchUi.pushView( checklistMenu, new ChecklistDelegate(), WatchUi.SLIDE_UP);
         }    
         
     }

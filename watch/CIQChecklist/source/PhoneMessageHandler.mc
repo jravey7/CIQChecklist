@@ -1,57 +1,69 @@
-using Toybox.Communications as Comm;
+using Toybox.Application as App;
 using Toybox.WatchUi as Ui;
+using Toybox.Communications;
+using Toybox.System;
 
 module PhoneMessageHandler
 {
-	// stores the last uploaded checklist from phone (overwritten each upload)
-	var lastUploadedChecklist = new Checklist("", new[1]);
-	var checklistIsNew = false;
+	// stores the last sent message from phone (overwritten each upload)
+	// to use: access the message's data field (i.e. message.data)
+	// message.data can be a list, which is accessed as message.data[i]
+	// which can then be converted to different types 
+	// (i.e. message.data[i].toString(); message.data[i].toNumber())
+	var message;
 	
-	function getLastChecklist()
+	// a flag field to identify when a new message is available 
+	var isNewMessage = false; 
+	
+	// an optional user created callback function (todo: implemented functionality)
+	var userCreatedCallback = null;
+	
+	var phoneCallback;
+	
+	function registerForMessages()
 	{
-		checklistIsNew = false;
-		return lastUploadedChecklist;
+	    if( Communications has :registerForPhoneAppMessages)
+        {
+        	phoneCallback = method(:onReceiveMessage);
+        	Communications.registerForPhoneAppMessages(phoneCallback);
+        }
+        else
+        {
+        	// crash if registerForPhoneAppMessages interface isn't available
+        	foo = bar;
+        }
 	}
 	
-	function hasNewChecklist()
+	// callback function to receive a phone message
+	function onReceiveMessage(msg)
 	{
-		return checklistIsNew;
-	}
-	
-	// remove this function after testing
-	function setChecklist(name, items)
-	{
-		checklistIsNew = true;
-		lastUploadedChecklist = new Checklist(name, items);
-	}
-	
-	function onReceiveMessage(data)
-	{
-		// the message passed representing a checklist shall be a list of strings in the format:
-		// list name
-		// number of list items
-		// list item 1
-		// list item 2
-		// ...
-		// list item n
-	
-		// first element is the list name
-		var listName = data[0];
+		isNewMessage = true;
+		message = msg;
+		WatchUi.requestUpdate();
 		
-		// seconds element is the number of list items
-		var nItems = data[1].toNumber();
-		
-		// remaining elements are the list items
-		var listItems = new[nItems];
-		for( var i = 0; i < nItems; i++)
+		if(userCreatedCallback != null)
 		{
-			listItems[i] = data[i + 2];
+			userCreatedCallback.invoke();
 		}
-		
-		checklistIsNew = true;
-		lastUploadedChecklist = new Checklist(listName, listItems);
-		
-		Ui.requestUpdate();
+	}
+	
+	// returns the last message sent from the phone
+	// see "var message" declaration above for usage 
+	function getLastMessage()
+	{
+		isNewMessage = false;
+		return message;
+	}
+	
+	function hasNewMessage()
+	{
+		return isNewMessage;
+	}
+	
+	function setLastMessage(message)
+	{
+		me.message = message;
+		isNewMessage = true;
 	}
 
 }

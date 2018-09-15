@@ -34,8 +34,6 @@ public class CreateListActivity extends AppCompatActivity {
     boolean editList = false;
     String editListName = "";
 
-    ConnectIQInteraction ciqInteract;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,7 +74,7 @@ public class CreateListActivity extends AppCompatActivity {
 
         // initialize connect iq sdk
         try {
-            ciqInteract = new ConnectIQInteraction(getApplicationContext());
+            ConnectIQInteraction.initialize(getApplicationContext());
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -139,44 +137,70 @@ public class CreateListActivity extends AppCompatActivity {
         EditText editTextListName = (EditText) findViewById(R.id.editListName);
         final String newListName = editTextListName.getText().toString();
         if( !newListName.isEmpty() && !listItems.isEmpty()
+                // can only overwrite lists if we are currently editing a list and the list's name is either unique or the same as it used to be
             && (isUniqueListName(newListName) || (editList && editListName.equals(newListName))))
-        // can only overwrite lists if we are currently editing a list and the list's name is either unique or the same as it used to be
         {
+
             final Checklist checklist = new Checklist(newListName, listItems);
 
-            AlertDialog.Builder uploadToWatchAlert = new AlertDialog.Builder(this);
-            uploadToWatchAlert.setMessage("Upload to watch?");
-            uploadToWatchAlert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    // save list
-                    ListWriter.writeListToFile(CreateListActivity.this, checklist);
+            if( ConnectIQInteraction.watchIsConnected() ) {
 
-                    // upload to watch
-                    try {
-                        ciqInteract.writeListToWatch(checklist);
-                    } catch( Exception e)
-                    {
-                        e.printStackTrace();
+                AlertDialog.Builder uploadToWatchAlert = new AlertDialog.Builder(this);
+                uploadToWatchAlert.setMessage("Upload to watch?");
+                uploadToWatchAlert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // save list
+                        ListWriter.writeListToFile(CreateListActivity.this, checklist);
+
+                        // upload to watch
+                        try {
+                            ConnectIQInteraction.writeListToWatch(checklist);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        // end this activity and go back to landing page
+                        finish();
                     }
+                });
+                uploadToWatchAlert.setNegativeButton("Later", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // save list but do not upload to watch
+                        ListWriter.writeListToFile(CreateListActivity.this, checklist);
+                        finish();
+                    }
+                });
+                uploadToWatchAlert.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // cancelled, do nothing
+                    }
+                });
 
-                    // end this activity and go back to landing page
-                    finish();
-                }
-            });
-            uploadToWatchAlert.setNegativeButton("Later", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    // save list but do not upload to watch
-                    ListWriter.writeListToFile(CreateListActivity.this, checklist);
-                    finish();
-                }
-            });
-            uploadToWatchAlert.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    // cancelled, do nothing
-                }
-            });
+                uploadToWatchAlert.show();
+            }
+            else
+            {
+                AlertDialog.Builder savedListAlert = new AlertDialog.Builder(this);
+                savedListAlert.setMessage("Save list for later? No compatible watches detected. " +
+                        "(Please check that the watch is connected in your phone's settings and reconnect if needed.)");
+                savedListAlert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // save list
+                        ListWriter.writeListToFile(CreateListActivity.this, checklist);
 
-            uploadToWatchAlert.show();
+                        // end this activity and go back to landing page
+                        finish();
+                    }
+                });
+                savedListAlert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // cancelled, do nothing
+                    }
+                });
+
+                savedListAlert.show();
+            }
+
         }
         else
         {
