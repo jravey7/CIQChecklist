@@ -1,6 +1,7 @@
 package com.javey.ciqchecklist;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.garmin.android.connectiq.ConnectIQ;
 import com.garmin.android.connectiq.IQApp;
@@ -18,22 +19,27 @@ public class ConnectIQInteraction {
     private static String appID = new String("cca6574cd2264a7daa2a92ac3ab32d6f"); // CIQChecklist UUID
     private static IQApp app;
 
-    private ConnectIQ connectIQ;
-    private static IQDevice watch;
-    private volatile boolean sdkReady = false;
+    private static ConnectIQ connectIQ;
+    private static volatile boolean sdkReady = false;
     private static boolean initialized = false;
+
+    private static Context appContext;
 
     public ConnectIQInteraction(Context context) throws InterruptedException
     {
-        connectIQ = ConnectIQ.getInstance(context, ConnectIQ.IQConnectType.WIRELESS);
-
         if(!initialized)
         {
-            connectIQ.initialize(context, true, new ConnectIQ.ConnectIQListener() {
+            appContext = context;
+
+            connectIQ = ConnectIQ.getInstance(appContext, ConnectIQ.IQConnectType.WIRELESS);
+
+            connectIQ.initialize(appContext, true, new ConnectIQ.ConnectIQListener() {
 
                 @Override
                 public void onSdkReady()
                 {
+                    Toast.makeText(appContext,"ConnectIQ SDK ready.", Toast.LENGTH_LONG).show();
+
                     sdkReady = true;
 
                     List<IQDevice> paired = null;
@@ -41,29 +47,38 @@ public class ConnectIQInteraction {
                         paired = connectIQ.getKnownDevices();
 
                         IQDevice firstPaired = paired.get(0);
-                        connectIQ.registerForDeviceEvents(firstPaired, new ConnectIQ.IQDeviceEventListener()
-                        {
-                           @Override
-                           public void onDeviceStatusChanged(IQDevice device, IQDevice.IQDeviceStatus newStatus)
-                           {
-                               System.out.println(device.getFriendlyName() + " status: " + newStatus);
 
-                               if(newStatus == IQDevice.IQDeviceStatus.CONNECTED)
-                               {
-                                   watch = new IQDevice(device.getDeviceIdentifier(), device.getFriendlyName());
-                                   watch.setStatus(IQDevice.IQDeviceStatus.CONNECTED);
-                               }
-                           }
-                        });
+                        // register for device status updates
+//                        connectIQ.registerForDeviceEvents(firstPaired, new ConnectIQ.IQDeviceEventListener()
+//                        {
+//                           @Override
+//                           public void onDeviceStatusChanged(IQDevice device, IQDevice.IQDeviceStatus newStatus)
+//                           {
+//                               System.out.println(device.getFriendlyName() + " status: " + newStatus);
+//                           }
+//                        });
 
-                        if( firstPaired.getStatus() == IQDevice.IQDeviceStatus.CONNECTED)
+                        if( connectIQ.getDeviceStatus(firstPaired) == IQDevice.IQDeviceStatus.CONNECTED)
                         {
+                            Toast.makeText(appContext, firstPaired.getFriendlyName() + " is connected.", Toast.LENGTH_LONG).show();
 
                             connectIQ.getApplicationInfo(appID, firstPaired, new ConnectIQ.IQApplicationInfoListener() {
                                 @Override
                                 public void onApplicationInfoReceived(IQApp iqApp) {
-                                    app = iqApp;
-                                    System.out.println("App info retrieved (" + app.getApplicationId() + ").");
+                                    if( iqApp != null)
+                                    {
+                                        app = iqApp;
+                                        System.out.print("App info retrieved (");
+
+                                        if( app.getStatus() == IQApp.IQAppStatus.INSTALLED)
+                                        {
+                                            System.out.println("installed: " + app.version() + ").");
+                                        }
+                                        else
+                                        {
+                                            System.out.println("not installed).");
+                                        }
+                                    }
                                 }
 
                                 @Override
@@ -74,7 +89,7 @@ public class ConnectIQInteraction {
                         }
                         else
                         {
-                            System.out.print("vívoactive 3 not connected");
+                            System.out.print("device not connected (" + firstPaired.getStatus() + ")");
                             if( firstPaired.getFriendlyName().equals("vívoactive 3"))
                             {
                                 System.out.println(" (but is paired to phone).");
@@ -102,6 +117,8 @@ public class ConnectIQInteraction {
                 {
                     sdkReady = false;
                     initialized = false;
+
+                    System.out.println("ConnectIQ SDK shutdown.");
                 }
             });
         }
@@ -115,13 +132,22 @@ public class ConnectIQInteraction {
 
     public void writeListToWatch(Checklist checklist) throws InvalidStateException, ServiceUnavailableException
     {
+        IQDevice watch = getFirstConnected();
+        connectIQ.openApplication(watch, app, new ConnectIQ.IQOpenApplicationListener() {
+            @Override
+            public void onOpenApplicationResponse(IQDevice iqDevice, IQApp iqApp, ConnectIQ.IQOpenApplicationStatus iqOpenApplicationStatus) {
+                System.out.println("Open application response: " + iqOpenApplicationStatus + " (app version: " + iqApp.version() + ")");
+            }
+        });
 
-        if(sdkReady && watch != null) {
+        // todo: support other device types (currently just vivoactive 3)
+        if(sdkReady && watch.getFriendlyName().equals("vívoactive3")) {
 
-            System.out.println(watch.getFriendlyName() + " status(2): " + watch.getStatus());
+            IQDevice.IQDeviceStatus status = connectIQ.getDeviceStatus(watch);
 
-            // todo: support other device types (currently just vivoactive 3)
-            if(watch.getStatus() == IQDevice.IQDeviceStatus.CONNECTED)
+            System.out.println(watch.getFriendlyName() + " status: " + status);
+
+            if(status == IQDevice.IQDeviceStatus.CONNECTED)
             {
                 List<String> message = new ArrayList<>();
                 message.add(checklist.getListName()); // name
@@ -132,7 +158,7 @@ public class ConnectIQInteraction {
                 connectIQ.sendMessage(watch, app, message, new ConnectIQ.IQSendMessageListener() {
                     @Override
                     public void onMessageStatus(IQDevice iqDevice, IQApp iqApp, ConnectIQ.IQMessageStatus iqMessageStatus) {
-                        System.out.println(iqDevice.getFriendlyName() + ":" + iqApp.toString() + ": Status = " + iqMessageStatus.name());
+                        Toast.makeText(appContext, iqMessageStatus.name(), Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -140,6 +166,21 @@ public class ConnectIQInteraction {
                 System.out.println("Watch not connected.");
             }
         }
+    }
+
+    private IQDevice getFirstConnected()
+    {
+        List<IQDevice> connectedList;
+        IQDevice firstConnected = new IQDevice(0, "");
+        try {
+            connectedList = connectIQ.getConnectedDevices();
+            firstConnected = connectedList.get(0);
+        } catch( Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return firstConnected;
     }
 
     public static boolean isInitialized()

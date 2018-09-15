@@ -22,11 +22,12 @@ class InitialView extends Ui.View {
         // Call the parent onUpdate function to redraw the layout
         View.onUpdate(dc);
         
-        // phone message handler requests for onUpdate() to run when it gets a new checklist
+        // phone message handler requests for onUpdate() to arun when it gets a new checklist
         // if a new checklist has been received then start the list view
         if(PhoneMessageHandler.hasNewChecklist())
         {
         	var checklist = PhoneMessageHandler.getLastChecklist();
+        	
         	// todo: shouldn't be a menu
 			var checklistMenu = new Ui.Menu();
 			checklistMenu.setTitle(checklist.getListName());

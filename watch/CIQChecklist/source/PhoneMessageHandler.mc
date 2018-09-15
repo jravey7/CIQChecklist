@@ -1,4 +1,4 @@
-using Toybox.Communications as Comms;
+using Toybox.Communications as Comm;
 using Toybox.WatchUi as Ui;
 
 module PhoneMessageHandler
@@ -23,11 +23,6 @@ module PhoneMessageHandler
 	{
 		checklistIsNew = true;
 		lastUploadedChecklist = new Checklist(name, items);
-	}
-
-	function registerForMessages()
-	{
-		Comms.registerForPhoneAppMessages(onReceiveMessage);
 	}
 	
 	function onReceiveMessage(data)
@@ -54,7 +49,7 @@ module PhoneMessageHandler
 		}
 		
 		checklistIsNew = true;
-		lastUploadedChecklist = new CIQChecklist(listName, nItems, listItems);
+		lastUploadedChecklist = new Checklist(listName, listItems);
 		
 		Ui.requestUpdate();
 	}
