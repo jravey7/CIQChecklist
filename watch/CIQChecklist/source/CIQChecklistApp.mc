@@ -1,7 +1,8 @@
 using Toybox.Application as App;
-using Toybox.WatchUi as Ui;
+using Toybox.WatchUi;
 using Toybox.Communications;
 using Toybox.System;
+using Toybox.Lang;
 
 class CIQChecklistApp extends App.AppBase {
 
@@ -16,7 +17,7 @@ class CIQChecklistApp extends App.AppBase {
         else
         {
         	// crash if registerForPhoneAppMessages interface isn't available
-        	foo = bar;
+        	throw new Lang.Exception();
         }
     }
 

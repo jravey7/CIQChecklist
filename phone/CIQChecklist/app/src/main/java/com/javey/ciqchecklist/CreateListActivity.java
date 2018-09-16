@@ -24,7 +24,58 @@ import java.util.Collections;
 
 public class CreateListActivity extends AppCompatActivity {
 
-    String[] defaultListItems = {"List Item #1"};
+    //String[] defaultListItems = {"List Item #1"};
+
+    String[] defaultListItems = {"Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato",
+            "Lettuce",
+            "Tomato ",
+            "Lettuce",
+            "Tomato",
+            "Tomato ",
+            "Lettuce"};
 
     ArrayList<String> listItems = new ArrayList<>();
     ArrayAdapter adapter;
@@ -89,7 +140,7 @@ public class CreateListActivity extends AppCompatActivity {
 
         // add an editable view to the dialog to accept user input
         final EditText textInput = new EditText(this );
-        textInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        textInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         textInputDialogBuilder.setView(textInput);
         textInputDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {

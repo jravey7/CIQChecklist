@@ -2,6 +2,7 @@ using Toybox.Application as App;
 using Toybox.WatchUi as Ui;
 using Toybox.Communications;
 using Toybox.System;
+using Toybox.Lang;
 
 module PhoneMessageHandler
 {
@@ -30,7 +31,7 @@ module PhoneMessageHandler
         else
         {
         	// crash if registerForPhoneAppMessages interface isn't available
-        	foo = bar;
+        	throw new Lang.Exception();
         }
 	}
 	

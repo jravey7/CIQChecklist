@@ -49,11 +49,14 @@ class InitialView extends WatchUi.View {
 				listItems[i] = phoneMessage.data[i + 2].toString();
 			}
         	
-        	// todo: shouldn't be a menu
+        	// save checklist
+        	Application.Storage.setValue(listName, listItems);
+        	
+        	// create checklist as a built-in CheckboxMenu (todo: custom menu? maybe based on user app settings)
 			var checklistMenu = new WatchUi.CheckboxMenu({:title=>listName});
 			for( var i = 0; i < listItems.size(); i++)
 			{
-				var item = new WatchUi.CheckboxMenuItem(listItems[i], null, i, false, {}); 
+				var item = new ChecklistItem(listItems[i], null, i, false); 
 				checklistMenu.addItem(item);
 			}
 			WatchUi.pushView( checklistMenu, new ChecklistDelegate(), WatchUi.SLIDE_UP);

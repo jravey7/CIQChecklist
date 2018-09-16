@@ -13,7 +13,7 @@
         android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="@string/hint_list_name"
-        android:inputType="text"
+        android:inputType="text|textCapSentences"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         app:layout_constraintStart_toStartOf="@+id/textViewName"

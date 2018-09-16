@@ -11,8 +11,8 @@ class ChecklistDelegate extends WatchUi.Menu2InputDelegate {
     
     // vivoactive3: tap screen (short touch)
     function onSelect(item) {
-    	System.println(item.getLabel());
-    		
+    
+        		
     	WatchUi.requestUpdate();
     }
 
